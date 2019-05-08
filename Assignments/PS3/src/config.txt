@@ -1,0 +1,14 @@
+Listen 6789
+CacheSize 8096
+ThreadPoolSize 8
+Monitor HeartbeatMonitor
+
+<VirtualHost *:6789>
+  DocumentRoot  /home/accts/ff242/cs433/ps3/src/doc-root
+  ServerName cicada.cs.yale.edu
+</VirtualHost>
+
+<VirtualHost *:6789>
+  DocumentRoot  /home/accts/ff242/cs433/ps3/src/doc-root
+  ServerName mobile.cicada.cs.yale.edu
+</VirtualHost>

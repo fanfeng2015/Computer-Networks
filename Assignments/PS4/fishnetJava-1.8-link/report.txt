@@ -1,0 +1,71 @@
+1. Design Documentation
+====================================================================================================
+Layered network architecture: Application, Transport, Network, Link, ...
+
+Node.java (Network layer)
+public void onReceive(Integer from, byte[] msg) -> private void receivePacket(int from, Packet packet)
+
+When a packet is received on the network layer, node takes corresponding actions depending on the protocol
+type.
+
+
+
+TCPManager.java (Transport layer)
+Manages an array of TCP sockets. Responsible for receiving from node (network layer), finding the best matched
+TCP socket, and delegating it to handle the segment. Responsible for sending transport packet to application
+layer.
+
+
+
+TCPSock.java (Transport layer)
+Public APIs up to
+public void onReceive(int srcAddr, int srcPort, Transport segment)
+are provided to the application layer.
+
+public void onReceive(int srcAddr, int srcPort, Transport segment) is provided to TCPManager to delegate segment.
+
+The rest of the methods are for transporting between sender and receiver.
+
+sender             receiver
+---------------------------
+sendSYN()          recvSYN()
+                   sendACK()
+recvACK()
+sendData()
+                   recvData()
+                   sendACK()
+...
+                   ...
+                   sendFIN()   OR                recvFIN()
+recvFIN()                           N/A
+
+
+
+
+
+2. Output
+====================================================================================================
+
+
+
+
+
+3. Discussion Questions
+====================================================================================================
+1A. Random value is better.
+    Because a connection can reuse the same port of a previously closed connection. When a packet from the previous
+    connection reaches the receiver, by using random value as the initial sequence number, the receiver of the new
+    connection will not view this packet as part of the current transfer.
+
+1B. Current implementation will accept all the connections, resulting in lack of sockets for normal connections,
+    since the SYN flood is effectively wasting resources on the receiver side. This can be handled by a). implementing
+    a 3-way handshake protocol, b). filtering connections sent from the malicious IP address, c). increasing the backlog
+    size, d). closing sockets where no data is transferred after a certain timeout.
+
+1C. The connection remains open on the receiver side. This can be handled by setting a timeout for each socket.
+    If no data is transferred after timeout, then the connection will be closed.
+
+2. The buffer should be larger than the maximum window size. Because otherwise buffer overflows and no congestion control
+   is in effect.
+
+
